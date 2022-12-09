@@ -8,7 +8,7 @@ client_credentials_manager = SpotifyClientCredentials(client_id = '9ea63cfe9be44
 
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
-
+master_playlist = []
 playlists = []
 playlists__full_data = []
 num_playlist = 0
@@ -54,15 +54,13 @@ while continue_var != "No":
     detailed_song_features = sp.audio_features(song_data['song_uri'])
     detailed_song_features = pd.DataFrame.from_dict(detailed_song_features)
 
-
     total_playlist_data = pd.merge(left = song_data, 
                                             right = detailed_song_features, 
                                             left_on = "song_uri", 
                                             right_on= "id")
 
 
-    print(total_playlist_data)
-
+    
     simple_song_data_for_my_playlist = total_playlist_data[["song_name", 
                                                                     "artist", 
                                                                     "genre", 
@@ -71,24 +69,55 @@ while continue_var != "No":
                                                                     "tempo"]]
 
 
-    print(simple_song_data_for_my_playlist)
+    #print(simple_song_data_for_my_playlist)
     playlists.append(simple_song_data_for_my_playlist)
     playlists__full_data.append(total_playlist_data)
-    print(playlists[num_playlist])
+    #print(playlists[num_playlist])
 
 
     num_playlist = num_playlist + 1
-
     continue_var = input("Continue (Yes or No): ")
 
 
 
+all_songs = []
+
 #prints out entered playlist data
 playlists.reverse()
 num_playlist = num_playlist - 1
+
+
+master_playlist = pd.concat(playlists).drop_duplicates().reset_index(drop=True)
+
+
+
+print(master_playlist)
+
+
+#prints out playlists
+'''
 while num_playlist >= 0:
-    print(playlists[num_playlist])
+    #print(playlists[num_playlist])
     num_playlist = num_playlist- 1
+
+'''
+
+
+
+
+
+#print(all_songs)
+#print(all_songs[105])
+
+
+
+
+
+
+
+
+
+#search for song data
 
 '''
     song_to_find = input("Enter a song: ")
@@ -106,6 +135,13 @@ while num_playlist >= 0:
         
         count = count + 1.0
 '''
+
+
+
+
+
+'''
+#average popularity
 total_popularity = 0
 count = 0 
 
@@ -115,7 +151,7 @@ for song in simple_song_data_for_my_playlist:
 
 average_popularity = total_popularity/count
 
-
+#average danceability
 total_danceability = 0.0
 count = 0.0 
 
@@ -132,3 +168,4 @@ print('Average Danceability:', round(average_danceability,2))
 
 print(detailed_song_features)
 
+'''
