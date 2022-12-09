@@ -1,19 +1,27 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
+import os
+from dotenv import load_dotenv
 
+#import env variables
+load_dotenv()
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-client_credentials_manager = SpotifyClientCredentials(client_id = '9ea63cfe9be44a5abe89e5cdcaa077da', 
-                                                    client_secret = '13f762e20e9240319f71faed2f68e886')
+client_credentials_manager = SpotifyClientCredentials(client_id = CLIENT_ID, 
+                                                    client_secret = CLIENT_SECRET)
 
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
+
 master_playlist = []
 playlists = []
-playlists__full_data = []
+playlists_full_data = []
 num_playlist = 0
 continue_var = 'Yes'
 
+#loop to add desired number fo playlists
 while continue_var != "No":
     playlist = input("Enter a playlist Share URL: ")
 
@@ -29,7 +37,6 @@ while continue_var != "No":
     artist_main_genre = []
     popularity = []
 
-
     for entry in tracks_in_my_playlist_info["items"]:
 
         uri.append(entry["track"]["uri"].split(":")[-1])
@@ -43,13 +50,11 @@ while continue_var != "No":
 
         popularity.append(entry["track"]["popularity"])
 
-
     song_data = pd.DataFrame({'song_uri': uri,
                                     'song_name': name,
                                     'artist': artist,
                                     'genre' : artist_main_genre,
                                     'popularity': popularity})
-
 
     detailed_song_features = sp.audio_features(song_data['song_uri'])
     detailed_song_features = pd.DataFrame.from_dict(detailed_song_features)
@@ -59,8 +64,6 @@ while continue_var != "No":
                                             left_on = "song_uri", 
                                             right_on= "id")
 
-
-    
     simple_song_data_for_my_playlist = total_playlist_data[["song_name", 
                                                                     "artist", 
                                                                     "genre", 
@@ -68,32 +71,62 @@ while continue_var != "No":
                                                                     "danceability", 
                                                                     "tempo"]]
 
-
     #print(simple_song_data_for_my_playlist)
     playlists.append(simple_song_data_for_my_playlist)
-    playlists__full_data.append(total_playlist_data)
+    playlists_full_data.append(total_playlist_data)
     #print(playlists[num_playlist])
-
 
     num_playlist = num_playlist + 1
     continue_var = input("Continue (Yes or No): ")
 
 
-
-all_songs = []
-
-#prints out entered playlist data
+#Reverses playlist to match the order they were entered in 
 playlists.reverse()
 num_playlist = num_playlist - 1
 
-
+#Combines all playlists into one while removing duplicates
 master_playlist = pd.concat(playlists).drop_duplicates().reset_index(drop=True)
 
-
-
+print(playlists_full_data)
 print(master_playlist)
 
 
+#averages advanced numeric data for all playlists 
+'''count = 0
+col_labels = []
+for playlists in playlists_full_data:
+    col_count = 0
+    for item in playlists_full_data[count]:
+        if playlists_full_data[count][item].dtypes == 'float64' or playlists_full_data[count][item].dtypes ==  'int64':
+            col_labels = list(playlists_full_data[count].columns)
+            #cols = list(simple_song_data_for_my_playlist.columns)
+            #print(cols[cols_count]," - ",simple_song_data_for_my_playlist[item][count])
+            print(col_labels[col_count], ": ", round(playlists_full_data[count][item].mean(), 2))
+        col_count = col_count + 1
+    count = count + 1'''
+
+
+
+#Finds average, maximum, and miniumum values in playlists
+count = 0
+col_labels = []
+for playlists in playlists_full_data:
+    col_count = 0
+    for item in playlists_full_data[count]:
+        if playlists_full_data[count][item].dtypes == 'float64' or playlists_full_data[count][item].dtypes ==  'int64':
+            col_labels = list(playlists_full_data[count].columns)
+            print(col_labels[col_count].capitalize(),": ")
+            print("\tAverage: ", round(playlists_full_data[count][item].mean(), 2))
+            song = playlists_full_data[count]['song_name'].loc[playlists_full_data[count][item] == playlists_full_data[count][item].max()].values[0]
+            print("\tMaximum: ", song ,round(playlists_full_data[count][item].max(), 2))
+            #print(playlists_full_data[count]['song_name'].loc[playlists_full_data[count][item] == playlists_full_data[count][item].max()])
+            #playlists_full_data[count].query(playlists_full_data[count][item] == playlists_full_data[count][item].max())
+            print("\tMinimum: ", round(playlists_full_data[count][item].min(), 2))
+        col_count = col_count + 1
+    count = count + 1
+
+
+#print(playlists_full_data[count]['song_name'].itemsloc[playlists_full_data[count][item] == playlists_full_data[count][item].max()])
 #prints out playlists
 '''
 while num_playlist >= 0:
@@ -102,23 +135,7 @@ while num_playlist >= 0:
 
 '''
 
-
-
-
-
-#print(all_songs)
-#print(all_songs[105])
-
-
-
-
-
-
-
-
-
 #search for song data
-
 '''
     song_to_find = input("Enter a song: ")
     count = 0.0
@@ -135,9 +152,6 @@ while num_playlist >= 0:
         
         count = count + 1.0
 '''
-
-
-
 
 
 '''
