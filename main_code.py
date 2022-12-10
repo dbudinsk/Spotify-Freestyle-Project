@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
-
+#obtain credentials
 load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
@@ -14,6 +14,7 @@ client_credentials_manager = SpotifyClientCredentials(client_id = CLIENT_ID,
 
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
+#lists to hold song data
 master_playlist = []
 playlists = []
 playlists_full_data = []
@@ -78,15 +79,12 @@ def get_playlists(num_playlist):
             
             continue_var = input("Continue (Yes or No): ")
 
-    print(num_playlist)
     return num_playlist
             
+   
 if __name__ =="__main__":
     num_playlist = 0
-    num_playlist=get_playlists(num_playlist)
-
-    print(num_playlist)
-    print("test1")
+    num_playlist = get_playlists(num_playlist)
 
     #Reverses playlist to match the order they were entered in 
     playlists.reverse()
@@ -94,7 +92,7 @@ if __name__ =="__main__":
     summary_data = pd.DataFrame()
     count = 0
     master_playlist = pd.concat(playlists).drop_duplicates().reset_index(drop=True)
-     
+ 
     for each_playlist in playlists_full_data:
         col_labels = []
         category = []
@@ -104,7 +102,6 @@ if __name__ =="__main__":
         maxi_song = []
         mini_song = []
         col_count = 0
-
         for item in playlists_full_data[count]:
             if playlists_full_data[count][item].dtypes == 'float64' or playlists_full_data[count][item].dtypes ==  'int64':
                 col_labels = list(playlists_full_data[count].columns)
@@ -128,19 +125,17 @@ if __name__ =="__main__":
                                         'Max_Song': maxi_song,
                                         'Minimum': minimum ,
                                         'Min_Song': mini_song})
+        
         count = count + 1
         summary_data = summary_data.append(temp_data)
     
-
+    #exports collected data to excel
     playlist_label = "Playlist"
     with pd.ExcelWriter("Playlist Summary.xlsx") as writer:
         master_playlist.to_excel(writer, sheet_name= "Master Playlist")
         summary_data.to_excel(writer, sheet_name= "Summary")
         count = 0
         while count < num_playlist:
-            playlists[count].to_excel(writer, sheet_name= (playlist_label + str(count+1)))
+            playlists[count].to_excel(writer, sheet_name= (playlist_label + " " + str(count+1)))
             count = count + 1
 
-    #Combines all playlists into one while removing duplicates
-    print(playlists)
-   
