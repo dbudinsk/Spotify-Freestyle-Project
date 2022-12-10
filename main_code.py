@@ -22,13 +22,13 @@ def get_playlists(num_playlist):
     continue_var = 'Yes'
     while continue_var != "No":
             playlist = input("Enter a playlist Share URL: ")
-
+            if not playlist.startswith("http"):
+                print("Error")
+                exit()
             playlist_link = playlist
             playlist_URI = playlist_link.split("/")[-1].split("?")[0]
             track_uris = [x["track"]["uri"] for x in sp.playlist_tracks(playlist_URI)["items"]]
-
             tracks_in_my_playlist_info = sp.playlist_tracks(playlist_URI)
-
             #create lists to append data
             uri = []
             name = []                
@@ -81,7 +81,6 @@ def get_playlists(num_playlist):
     print(num_playlist)
     return num_playlist
             
-
 if __name__ =="__main__":
     num_playlist = 0
     num_playlist=get_playlists(num_playlist)
